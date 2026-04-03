@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a0f">
+<link rel="manifest" href="./manifest.json">
+<title>Trading Roadmap</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  :root {
+    --bg: #0a0a0f;
+    --card: #111118;
+    --border: #1e1e2a;
+    --text: #e2e2e8;
+    --dim: #666;
+    --muted: #444;
+    --safe-top: env(safe-area-inset-top, 20px);
+    --safe-bottom: env(safe-area-inset-bottom, 20px);
+  }
+
+  body {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100dvh;
+    overflow-x: hidden;
+    padding-top: var(--safe-top);
+    padding-bottom: calc(var(--safe-bottom) + 70px);
+  }
+
+  .app { max-width: 500px; margin: 0 auto; padding: 16px; }
+
+  /* Header */
+  .header { margin-bottom: 20px; }
+  .header h1 { font-size: 17px; font-weight: 700; color: #fff; letter-spacing: -0.5px; line-height: 1.3; }
+  .header .sub { font-size: 10px; color: var(--dim); margin-top: 4px; }
+
+  /* Progress */
+  .progress-wrap { margin-top: 12px; }
+  .progress-bar { background: var(--card); border-radius: 6px; height: 8px; overflow: hidden; border: 1px solid var(--border); }
+  .progress-fill { height: 100%; border-radius: 6px; transition: width 0.5s ease; }
+  .progress-label { font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+  /* Tabs */
+  .month-tabs { display: flex; gap: 5px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 14px; scrollbar-width: none; }
+  .month-tabs::-webkit-scrollbar { display: none; }
+  .month-tab {
+    padding: 8px 11px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--card); color: var(--dim); font-size: 9px; font-weight: 600;
+    cursor: pointer; white-space: nowrap; font-family: inherit; transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .month-tab.active { border-width: 2px; }
+
+  /* Phase banner */
+  .phase-banner { padding: 12px 14px; border-radius: 10px; margin-bottom: 14px; }
+  .phase-title { font-size: 13px; font-weight: 700; }
+
+  /* Week tabs */
+  .week-tabs { display: flex; gap: 5px; margin-bottom: 14px; }
+  .week-tab {
+    flex: 1; padding: 10px 6px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--card); color: var(--dim); font-size: 10px; font-weight: 600;
+    cursor: pointer; font-family: inherit; text-align: center; position: relative;
+    transition: all 0.2s;
+  }
+  .week-tab.active { color: #fff; background: #1a1a24; border-width: 2px; }
+  .week-tab .check { position: absolute; top: 2px; right: 4px; font-size: 7px; }
+
+  /* Content card */
+  .content-card { background: var(--card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+  .content-header {
+    padding: 14px 16px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .content-header .label { font-size: 9px; color: var(--muted); margin-bottom: 2px; }
+  .content-header .title { font-size: 14px; font-weight: 700; color: #fff; }
+  .mark-btn {
+    padding: 7px 14px; border-radius: 6px; border: 1px solid #333;
+    background: transparent; color: var(--dim); font-size: 10px; font-weight: 600;
+    cursor: pointer; font-family: inherit; transition: all 0.2s;
+  }
+  .mark-btn.done { border-color: currentColor; }
+
+  /* Slots */
+  .slot {
+    padding: 14px 16px; border-bottom: 1px solid #14141e;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .slot:last-child { border-bottom: none; }
+  .slot-icon { font-size: 18px; min-width: 24px; text-align: center; margin-top: 1px; }
+  .slot-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .slot-text { font-size: 12px; color: #aaa; line-height: 1.55; }
+  .slot-text.highlight { color: #fff; font-weight: 600; }
+
+  /* Schedule card */
+  .schedule-card {
+    margin-top: 14px; padding: 12px 14px; background: var(--card);
+    border-radius: 10px; border: 1px solid var(--border);
+  }
+  .schedule-card .label { font-size: 9px; font-weight: 700; color: var(--muted); margin-bottom: 8px; }
+  .schedule-card .lines { font-size: 11px; color: #555; line-height: 1.9; }
+  .schedule-card .lines span { font-weight: 600; }
+
+  /* Streak */
+  .streak-card {
+    margin-top: 14px; padding: 14px; background: var(--card);
+    border-radius: 10px; border: 1px solid var(--border);
+    display: flex; justify-content: space-around; text-align: center;
+  }
+  .streak-num { font-size: 22px; font-weight: 700; color: #fff; }
+  .streak-label { font-size: 9px; color: var(--muted); margin-top: 2px; }
+
+  /* Notes */
+  .notes-section { margin-top: 14px; }
+  .notes-toggle {
+    width: 100%; padding: 12px 14px; background: var(--card); border-radius: 10px;
+    border: 1px solid var(--border); color: var(--dim); font-size: 11px;
+    font-weight: 600; cursor: pointer; font-family: inherit; text-align: left;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .notes-area {
+    margin-top: 6px; width: 100%; min-height: 100px; padding: 12px;
+    background: var(--card); border-radius: 10px; border: 1px solid var(--border);
+    color: var(--text); font-size: 12px; font-family: inherit; resize: vertical;
+    outline: none; line-height: 1.5;
+  }
+  .notes-area::placeholder { color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="app" id="app"></div>
+
+<script>
+const PHASES = [
+  {
+    month: "Month 1", title: "Python Foundations", color: "#f59e0b",
+    weeks: [
+      { week: 1, focus: "Python Setup & Basics",
+        drive: "Listen: freeCodeCamp Python tutorial (YouTube audio). Cover variables, data types, basic operators.",
+        short_break: "Install Python via Replit or Pydroid 3 on your phone. Run your first 'hello world'.",
+        long_break: "freeCodeCamp Python exercises — strings, numbers, basic I/O. Goal: complete 10 exercises.",
+        milestone: "Can write and run simple Python scripts on your phone" },
+      { week: 2, focus: "Control Flow & Functions",
+        drive: "Listen: freeCodeCamp Python continued — if/else, loops, functions.",
+        short_break: "Review EA trade logs from the day. Screenshot any interesting setups.",
+        long_break: "Practice writing small functions — e.g., one that calculates risk/reward given entry, stop, target.",
+        milestone: "Can write functions with if/else logic" },
+      { week: 3, focus: "Lists, Dicts & File I/O",
+        drive: "Listen: Corey Schafer Python tutorials (YouTube audio) — lists, dictionaries, file handling.",
+        short_break: "EA review + journal entries on phone (Google Sheets or Notes app).",
+        long_break: "Write a script that stores your EA trade results in a dictionary and prints a summary.",
+        milestone: "Can read/write data to files in Python" },
+      { week: 4, focus: "Review & Mini Project",
+        drive: "Listen: 'Chat with Traders' podcast or ICT mentorship audio for a mental break.",
+        short_break: "EA review. Check weekly P&L across all 4 EAs.",
+        long_break: "Mini project: Build a simple trade journal script — input trades, store them, print win rate.",
+        milestone: "First Python project complete" }
+    ]
+  },
+  {
+    month: "Month 2", title: "Pandas & Data Analysis", color: "#3b82f6",
+    weeks: [
+      { week: 5, focus: "Pandas Basics",
+        drive: "Listen: Keith Galli pandas tutorial (YouTube audio). DataFrames, Series, reading CSVs.",
+        short_break: "EA review. Export your MT5 trade history as CSV for later use.",
+        long_break: "Install pandas on Replit/laptop. Load a sample CSV and practice .head(), .describe(), .info().",
+        milestone: "Can load and inspect data with pandas" },
+      { week: 6, focus: "Filtering & Aggregation",
+        drive: "Listen: More pandas tutorials — filtering rows, groupby, basic aggregation.",
+        short_break: "EA review + note which sessions/pairs perform best.",
+        long_break: "Load your MT5 trade history CSV into pandas. Filter by pair, calculate win rate per pair.",
+        milestone: "Can filter and group your own trade data" },
+      { week: 7, focus: "Visualization with Matplotlib",
+        drive: "Listen: Sentdex matplotlib tutorial or 'Better System Trader' podcast.",
+        short_break: "EA review.",
+        long_break: "Plot your EA equity curve from trade history. Create a bar chart of win rate by pair.",
+        milestone: "Can visualize your own trading data" },
+      { week: 8, focus: "MT5 Python Package Intro",
+        drive: "Listen: MetaTrader 5 Python integration tutorials (YouTube).",
+        short_break: "EA review + read MT5 Python docs on phone.",
+        long_break: "Install MetaTrader5 Python package. Connect to your account. Pull live price data for EURUSD.",
+        milestone: "Python connected to MT5" }
+    ]
+  },
+  {
+    month: "Month 3", title: "Python + MT5 Integration", color: "#10b981",
+    weeks: [
+      { week: 9, focus: "Pulling Historical Data",
+        drive: "Listen: Algo trading with Python tutorials — data collection methods.",
+        short_break: "EA review.",
+        long_break: "Write a script that pulls D1 candles for all 4 pairs and saves to CSV automatically.",
+        milestone: "Automated data collection script" },
+      { week: 10, focus: "Building Indicators in Python",
+        drive: "Listen: Trading podcast of choice + review ICT concepts mentally.",
+        short_break: "EA review + note any patterns in v7 performance.",
+        long_break: "Code a simple FVG detector in Python using pandas — find candles where gap exists between candle 1 high and candle 3 low.",
+        milestone: "First ICT indicator coded in Python" },
+      { week: 11, focus: "Sending Orders via Python",
+        drive: "Listen: MT5 Python order execution tutorials.",
+        short_break: "EA review.",
+        long_break: "Write a script that sends a demo market order on EURUSD via Python. Add SL and TP.",
+        milestone: "Can execute trades from Python" },
+      { week: 12, focus: "Mini Bot v1",
+        drive: "Listen: 'Algorithmic Advantage' or quant trading podcasts.",
+        short_break: "EA review + compare MQL5 EA results vs Python script detections.",
+        long_break: "Combine weeks 9-11: Pull data → detect FVG → send order. Your first Python trading bot (demo only).",
+        milestone: "First Python trading bot on demo" }
+    ]
+  },
+  {
+    month: "Month 4", title: "Backtesting with vectorbt", color: "#8b5cf6",
+    weeks: [
+      { week: 13, focus: "vectorbt Setup & Basics",
+        drive: "Listen: vectorbt intro tutorials and docs overview.",
+        short_break: "EA review.",
+        long_break: "Install vectorbt. Run the example from docs — backtest a simple MA crossover on forex data.",
+        milestone: "vectorbt installed and running" },
+      { week: 14, focus: "Custom Signal Backtesting",
+        drive: "Listen: Quant trading strategy design podcasts.",
+        short_break: "EA review.",
+        long_break: "Backtest your FVG detector from week 10 using vectorbt. Compare results across pairs.",
+        milestone: "First ICT strategy backtested in Python" },
+      { week: 15, focus: "Performance Metrics",
+        drive: "Listen: Risk management and position sizing content.",
+        short_break: "EA review.",
+        long_break: "Add Sharpe ratio, max drawdown, profit factor to your backtest. Compare to MQL5 EA stats.",
+        milestone: "Can evaluate strategy performance properly" },
+      { week: 16, focus: "Parameter Optimization",
+        drive: "Listen: Overfitting dangers in backtesting (critical topic).",
+        short_break: "EA review.",
+        long_break: "Use vectorbt to optimize one parameter (e.g., FVG minimum size). Learn overfitting vs real edge.",
+        milestone: "Understand optimization vs curve fitting" }
+    ]
+  },
+  {
+    month: "Month 5", title: "Portfolio & GitHub", color: "#ec4899",
+    weeks: [
+      { week: 17, focus: "Git & GitHub Basics",
+        drive: "Listen: Git tutorial for beginners (YouTube audio).",
+        short_break: "Create a GitHub account. Star some quant repos for reference.",
+        long_break: "Push your trade journal script and FVG detector to GitHub. Write a basic README.",
+        milestone: "First GitHub repos live" },
+      { week: 18, focus: "Notebook Portfolio Piece",
+        drive: "Listen: 'How to get a quant job' content — what recruiters look for.",
+        short_break: "EA review.",
+        long_break: "Start a Jupyter notebook: 'ICT Fair Value Gap Analysis Across Forex Majors' — combine all your work.",
+        milestone: "Portfolio project started" },
+      { week: 19, focus: "Polish & Document",
+        drive: "Listen: Data science portfolio advice podcasts.",
+        short_break: "EA review.",
+        long_break: "Add markdown explanations to your notebook. Make charts clean. This is what hiring managers see.",
+        milestone: "Portfolio project presentable" },
+      { week: 20, focus: "Second Project Start",
+        drive: "Listen: Quant interview prep content.",
+        short_break: "EA review.",
+        long_break: "Start project 2: 'SMT Divergence Detector' — pull ES+NQ data, detect divergences, backtest.",
+        milestone: "Second portfolio project underway" }
+    ]
+  },
+  {
+    month: "Month 6", title: "Level Up & Next Steps", color: "#ef4444",
+    weeks: [
+      { week: 21, focus: "NumPy Deep Dive",
+        drive: "Listen: NumPy tutorials — arrays, vectorized operations, stats functions.",
+        short_break: "EA review.",
+        long_break: "Refactor existing scripts to use NumPy instead of loops. Notice the speed difference.",
+        milestone: "Comfortable with NumPy" },
+      { week: 22, focus: "Statistics for Trading",
+        drive: "Listen: 'Quantitative Trading' by Ernie Chan (audiobook) or similar.",
+        short_break: "EA review.",
+        long_break: "Calculate z-scores, correlations between pairs, basic hypothesis testing on strategy returns.",
+        milestone: "Can apply statistics to trading data" },
+      { week: 23, focus: "Rebuild an EA in Python",
+        drive: "Listen: Advanced algo trading architecture podcasts.",
+        short_break: "EA review.",
+        long_break: "Start converting your v7 ICT EA logic from MQL5 to Python. The bridge between your two worlds.",
+        milestone: "v7 logic partially ported to Python" },
+      { week: 24, focus: "Review & Roadmap Forward",
+        drive: "Listen: Career planning — quant roles, hedge funds, prop firms.",
+        short_break: "Final EA performance review. 6-month comparison.",
+        long_break: "Update GitHub, polish all projects, plan months 7-12. You're now dangerous with Python + trading.",
+        milestone: "GitHub portfolio ready, clear next steps" }
+    ]
+  }
+];
+
+const ICONS = { drive: "🎧", short_break: "📱", long_break: "📚", milestone: "🎯" };
+const LABELS = { drive: "Drive Time (~50 min)", short_break: "15-Min Break", long_break: "30-Min Break", milestone: "Weekly Milestone" };
+
+// State
+let state = {
+  activeMonth: 0,
+  activeWeek: 0,
+  completedWeeks: [],
+  notes: {},
+  showNotes: false,
+  ...loadState()
+};
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem('roadmap_state');
+    return saved ? JSON.parse(saved) : {};
+  } catch { return {}; }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem('roadmap_state', JSON.stringify({
+      completedWeeks: state.completedWeeks,
+      notes: state.notes
+    }));
+  } catch {}
+}
+
+function render() {
+  const phase = PHASES[state.activeMonth];
+  const weekData = phase.weeks[state.activeWeek];
+  const globalWeek = weekData.week;
+  const isDone = state.completedWeeks.includes(globalWeek);
+  const totalDone = state.completedWeeks.length;
+  const pct = Math.round((totalDone / 24) * 100);
+
+  let html = `
+    <div class="header">
+      <h1>6-MONTH TRADING +<br>PYTHON ROADMAP</h1>
+      <div class="sub">Drive time · 15-min break · 30-min break</div>
+      <div class="progress-wrap">
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${pct}%;background:linear-gradient(90deg,${phase.color},${phase.color}cc)"></div>
+        </div>
+        <div class="progress-label">${totalDone}/24 weeks complete (${pct}%)</div>
+      </div>
+    </div>
+
+    <div class="month-tabs">
+      ${PHASES.map((p, i) => `
+        <div class="month-tab ${state.activeMonth === i ? 'active' : ''}"
+             style="${state.activeMonth === i ? `border-color:${p.color};color:${p.color};background:${p.color}15` : ''}"
+             onclick="setMonth(${i})">${p.month}</div>
+      `).join('')}
+    </div>
+
+    <div class="phase-banner" style="background:${phase.color}10;border:1px solid ${phase.color}30">
+      <div class="phase-title" style="color:${phase.color}">${phase.title}</div>
+    </div>
+
+    <div class="week-tabs">
+      ${phase.weeks.map((w, i) => {
+        const done = state.completedWeeks.includes(w.week);
+        return `
+          <div class="week-tab ${state.activeWeek === i ? 'active' : ''}"
+               style="${state.activeWeek === i ? `border-color:${phase.color}` : ''} ${done ? `background:${phase.color}20` : ''}"
+               onclick="setWeek(${i})">
+            ${done ? `<span class="check">✓</span>` : ''}
+            W${w.week}
+          </div>`;
+      }).join('')}
+    </div>
+
+    <div class="content-card">
+      <div class="content-header">
+        <div>
+          <div class="label">WEEK ${globalWeek}</div>
+          <div class="title">${weekData.focus}</div>
+        </div>
+        <button class="mark-btn ${isDone ? 'done' : ''}"
+                style="${isDone ? `border-color:${phase.color};color:${phase.color};background:${phase.color}20` : ''}"
+                onclick="toggleDone(${globalWeek})">
+          ${isDone ? '✓ Done' : 'Mark Done'}
+        </button>
+      </div>
+
+      ${['drive', 'short_break', 'long_break', 'milestone'].map(slot => `
+        <div class="slot">
+          <div class="slot-icon">${ICONS[slot]}</div>
+          <div style="flex:1">
+            <div class="slot-label" style="color:${phase.color}">${LABELS[slot]}</div>
+            <div class="slot-text ${slot === 'milestone' ? 'highlight' : ''}">${weekData[slot]}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="notes-section">
+      <button class="notes-toggle" onclick="toggleNotes()">
+        <span>📝 Week ${globalWeek} Notes</span>
+        <span>${state.showNotes ? '▲' : '▼'}</span>
+      </button>
+      ${state.showNotes ? `
+        <textarea class="notes-area"
+                  placeholder="Jot down what you learned, ideas, EA observations..."
+                  oninput="saveNote(${globalWeek}, this.value)">${state.notes[globalWeek] || ''}</textarea>
+      ` : ''}
+    </div>
+
+    <div class="streak-card">
+      <div>
+        <div class="streak-num" style="color:${phase.color}">${totalDone}</div>
+        <div class="streak-label">WEEKS DONE</div>
+      </div>
+      <div>
+        <div class="streak-num" style="color:${phase.color}">${24 - totalDone}</div>
+        <div class="streak-label">REMAINING</div>
+      </div>
+      <div>
+        <div class="streak-num" style="color:${phase.color}">${Math.round(totalDone / 24 * 100)}%</div>
+        <div class="streak-label">PROGRESS</div>
+      </div>
+    </div>
+
+    <div class="schedule-card">
+      <div class="label">YOUR DAILY SCHEDULE</div>
+      <div class="lines">
+        <span style="color:#f59e0b">🎧 3:40–4:30 PM</span> — Drive to work (audio)<br>
+        <span style="color:#3b82f6">📱 Break 1 (15 min)</span> — EA review + quick study<br>
+        <span style="color:#10b981">📚 Break 2 (30 min)</span> — Focused practice<br>
+        <span style="color:#8b5cf6">🎧 3:00–4:00 AM</span> — Drive home (audio)
+      </div>
+    </div>
+  `;
+
+  document.getElementById('app').innerHTML = html;
+}
+
+function setMonth(i) { state.activeMonth = i; state.activeWeek = 0; state.showNotes = false; render(); }
+function setWeek(i) { state.activeWeek = i; state.showNotes = false; render(); }
+
+function toggleDone(week) {
+  const idx = state.completedWeeks.indexOf(week);
+  if (idx > -1) state.completedWeeks.splice(idx, 1);
+  else state.completedWeeks.push(week);
+  saveState();
+  render();
+}
+
+function toggleNotes() { state.showNotes = !state.showNotes; render(); }
+
+function saveNote(week, text) {
+  state.notes[week] = text;
+  saveState();
+}
+
+// Init
+render();
+
+// Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
+</script>
+
+</body>
+</html>
